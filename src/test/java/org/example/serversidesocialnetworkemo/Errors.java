@@ -12,6 +12,8 @@ public class Errors {
 
     public static final int USERNAME_EMPTY  = 1401;
     public static final int USERNAME_SYNTAX = 1402;
+    public static final int USERNAME_ALREADY_EXISTS = 1403;
+
 
 
 

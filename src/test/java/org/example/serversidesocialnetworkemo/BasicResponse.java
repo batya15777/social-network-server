@@ -1,6 +1,11 @@
 package org.example.serversidesocialnetworkemo;
 
 public class BasicResponse {
+    private boolean success;
+    private Integer errorCode;
+
+
+
     public BasicResponse(boolean success, Integer errorCode) {
         this.success = success;
         this.errorCode = errorCode;
@@ -21,9 +26,6 @@ public class BasicResponse {
     public void setErrorCode(Integer errorCode) {
         this.errorCode = errorCode;
     }
-
-    private boolean success;
-    private Integer errorCode;
 
 
 

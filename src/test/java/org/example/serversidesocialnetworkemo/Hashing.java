@@ -9,7 +9,7 @@ public class Hashing {
 
 
  public static void main(String[] args) {
-     System.out.println( hash("batya", "123"));
+     System.out.println( hash("Nir", "123"));
 
 }
 
