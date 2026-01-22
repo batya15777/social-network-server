@@ -1,4 +1,4 @@
-package org.example.serversidesocialnetworkemo;
+package org.example.serversidesocialnetworkemo.Response;
 
 public class BasicResponse {
     private boolean success;

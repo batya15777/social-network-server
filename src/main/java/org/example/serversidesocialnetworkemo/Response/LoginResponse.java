@@ -1,6 +1,6 @@
-package org.example.serversidesocialnetworkemo;
+package org.example.serversidesocialnetworkemo.Response;
 
-public class LoginResponse extends BasicResponse{
+public class LoginResponse extends BasicResponse {
     private String token;
 
 

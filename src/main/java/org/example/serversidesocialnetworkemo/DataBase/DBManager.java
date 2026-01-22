@@ -1,6 +1,7 @@
-package org.example.serversidesocialnetworkemo;
+package org.example.serversidesocialnetworkemo.DataBase;
 
 import jakarta.annotation.PostConstruct;
+import org.example.serversidesocialnetworkemo.Entity.User;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;

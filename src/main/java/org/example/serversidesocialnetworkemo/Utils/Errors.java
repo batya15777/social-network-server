@@ -1,4 +1,4 @@
-package org.example.serversidesocialnetworkemo;
+package org.example.serversidesocialnetworkemo.Utils;
 
 public class Errors {
     public static final int FIRST_NAME_EMPTY  = 1101;

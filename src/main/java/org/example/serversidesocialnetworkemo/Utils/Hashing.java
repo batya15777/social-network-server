@@ -1,4 +1,4 @@
-package org.example.serversidesocialnetworkemo;
+package org.example.serversidesocialnetworkemo.Utils;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

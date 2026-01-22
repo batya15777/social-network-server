@@ -1,9 +1,15 @@
-package org.example.serversidesocialnetworkemo;
+package org.example.serversidesocialnetworkemo.controller;
 
+import org.example.serversidesocialnetworkemo.DataBase.DBManager;
+import org.example.serversidesocialnetworkemo.Entity.User;
+import org.example.serversidesocialnetworkemo.Request.LoginRequest;
+import org.example.serversidesocialnetworkemo.Response.BasicResponse;
+import org.example.serversidesocialnetworkemo.Response.LoginResponse;
+import org.example.serversidesocialnetworkemo.Utils.Errors;
+import org.example.serversidesocialnetworkemo.Utils.Hashing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import static org.example.serversidesocialnetworkemo.Errors.ERROR_LOGIN;
 
 @RestController
 
@@ -16,7 +22,7 @@ public class Control {
 @PostMapping("/login")
     public BasicResponse userLoginTest(@RequestBody LoginRequest loginRequest ){
     boolean success = false;
-    Integer errorCode =Errors.ERROR_LOGIN;
+    Integer errorCode = Errors.ERROR_LOGIN;
     String token = null;
     if (loginRequest == null) {
         errorCode = Errors.ERROR_LOGIN;

@@ -1,4 +1,4 @@
-package org.example.serversidesocialnetworkemo;
+package org.example.serversidesocialnetworkemo.Request;
 
 public class LoginRequest {
     private  String username;
