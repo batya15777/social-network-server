@@ -1,20 +1,26 @@
 package org.example.serversidesocialnetworkemo.Entity;
 
 public class User {
-
+//private String id;
  private String name;
  private String lastName;
  private String phone;
  private String generalSex;
  private String username;
  private String password;
+ private String token;
+ private String profileUrl;
+
 
 
 
 
  public User(){
 
+
  }
+
+
 
 
     public String getName() {
@@ -63,5 +69,22 @@ public class User {
 
     public void setGeneralSex(String generalSex) {
         this.generalSex = generalSex;
+    }
+
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getProfileUrl() {
+        return profileUrl;
+    }
+
+    public void setProfileUrl(String profileUrl) {
+        this.profileUrl = profileUrl;
     }
 }
