@@ -1,4 +1,4 @@
-package org.example.serversidesocialnetworkemo.Entity;
+package org.example.serversidesocialnetworkemo.Request;
 
 public class UpdateProfileRequest {
     private String profileUrl;

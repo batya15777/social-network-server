@@ -1,19 +1,20 @@
 package org.example.serversidesocialnetworkemo.controller;
 
 import org.example.serversidesocialnetworkemo.DataBase.DBManager;
-import org.example.serversidesocialnetworkemo.Entity.UpdateProfileRequest;
+import org.example.serversidesocialnetworkemo.Request.CreatePostRequest;
+import org.example.serversidesocialnetworkemo.Request.UpdateProfileRequest;
 import org.example.serversidesocialnetworkemo.Entity.User;
-import org.example.serversidesocialnetworkemo.Entity.UserProfile;
+import org.example.serversidesocialnetworkemo.Request.UserProfile;
 import org.example.serversidesocialnetworkemo.Request.LoginRequest;
 import org.example.serversidesocialnetworkemo.Response.BasicResponse;
 import org.example.serversidesocialnetworkemo.Response.LoginResponse;
+import org.example.serversidesocialnetworkemo.Response.PostResponse;
 import org.example.serversidesocialnetworkemo.Utils.Errors;
 import org.example.serversidesocialnetworkemo.Utils.Hashing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-
-
+import java.util.List;
 
 
 @RestController
@@ -122,4 +123,25 @@ public class Controler {
 
     }
 
+    @PostMapping("/add-posts")
+    public PostResponse addPosts(@RequestBody CreatePostRequest postUrl , @RequestHeader("Authorization") String token){
+        PostResponse postResponse = null;
+        Integer userId = this.dbManager.getUserIdByToken(token);
+        if (userId != null && postUrl.getImageUrl() != null && !postUrl.getImageUrl().trim().isEmpty()){
+            postResponse = this.dbManager.addPosts(userId,postUrl.getImageUrl());
+        }
+
+        return postResponse;
+
+
+    }
+    @GetMapping("/get-my-posts")
+    public List<PostResponse> getPosts( @RequestHeader("Authorization") String token){
+        List<PostResponse> postResponses = null;
+        Integer userId = this.dbManager.getUserIdByToken(token);
+        if (userId != null) {
+            postResponses = this.dbManager.getMyPosts(userId);
+        }
+        return postResponses;
+    }
 }

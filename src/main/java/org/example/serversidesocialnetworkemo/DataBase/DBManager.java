@@ -1,15 +1,15 @@
 package org.example.serversidesocialnetworkemo.DataBase;
 
 import jakarta.annotation.PostConstruct;
-import org.apache.el.parser.Token;
+import org.example.serversidesocialnetworkemo.Entity.Post;
 import org.example.serversidesocialnetworkemo.Entity.User;
-import org.example.serversidesocialnetworkemo.Entity.UserProfile;
+import org.example.serversidesocialnetworkemo.Response.PostResponse;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 public class DBManager {
     private static final String UEL = "jdbc:mysql://localhost:3306/social_network";
@@ -78,8 +78,8 @@ public class DBManager {
             preparedStatement.setString(4, user.getGeneralSex());
             preparedStatement.setString(5, user.getUsername());
             preparedStatement.setString(6, user.getPassword());
-            preparedStatement.setString(7,user.getToken());
-            preparedStatement.setString(8,user.getProfileUrl());
+            preparedStatement.setString(7, user.getToken());
+            preparedStatement.setString(8, user.getProfileUrl());
             preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
@@ -90,7 +90,7 @@ public class DBManager {
     }
 
 
-    public boolean updateUserToken(String username,String token) {
+    public boolean updateUserToken(String username, String token) {
         boolean success = true;
         String sql = "UPDATE users SET token = ? WHERE username = ?";
         try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
@@ -118,27 +118,29 @@ public class DBManager {
         }
         return userId;
     }
-    public String getUsername (Integer userId){
+
+    public String getUsername(Integer userId) {
         String username = null;
         String sql = "SELECT username FROM users WHERE id = ?";
-        try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)){
-          preparedStatement.setInt(1,userId);
-          ResultSet resultSet = preparedStatement.executeQuery();
-          if (resultSet.next()){
-              username = resultSet.getString(1);
-          }
+        try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, userId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                username = resultSet.getString(1);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-       return username;
+        return username;
     }
-    public String getByProfile (Integer userId){
+
+    public String getByProfile(Integer userId) {
         String profileUrl = null;
         String sql = "SELECT profileUrl FROM users WHERE id = ?";
-        try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)){
-            preparedStatement.setInt(1,userId);
+        try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, userId);
             ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()){
+            if (resultSet.next()) {
                 profileUrl = resultSet.getString(1);
             }
         } catch (SQLException e) {
@@ -146,28 +148,30 @@ public class DBManager {
         }
         return profileUrl;
     }
-    public  int getPostCount (Integer userId){
+
+    public int getPostCount(Integer userId) {
         int postCount = 0;
         String sql = "SELECT COUNT(*) FROM posts WHERE user_id = ?";
-        try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)){
-            preparedStatement.setInt(1,userId);
+        try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, userId);
             ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()){
+            if (resultSet.next()) {
                 postCount = resultSet.getInt(1);
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
-       return postCount;
+        return postCount;
     }
-    public  int getFollowersCount (Integer userId){
+
+    public int getFollowersCount(Integer userId) {
         int followersCount = 0;
         String sql = "SELECT COUNT(*) FROM follows WHERE followed_id = ?";
-        try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)){
-            preparedStatement.setInt(1,userId);
+        try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, userId);
             ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()){
+            if (resultSet.next()) {
                 followersCount = resultSet.getInt(1);
             }
 
@@ -176,13 +180,14 @@ public class DBManager {
         }
         return followersCount;
     }
-    public  int getFollowingCount (Integer userId){
+
+    public int getFollowingCount(Integer userId) {
         int followingCount = 0;
         String sql = "SELECT COUNT(*) FROM follows WHERE follower_id = ?";
-        try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)){
-            preparedStatement.setInt(1,userId);
+        try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, userId);
             ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()){
+            if (resultSet.next()) {
                 followingCount = resultSet.getInt(1);
             }
 
@@ -192,14 +197,14 @@ public class DBManager {
         return followingCount;
     }
 
-    public boolean updateProfileByUser(int userId,String profileUrl){
+    public boolean updateProfileByUser(int userId, String profileUrl) {
         boolean success = true;
         String sql = "UPDATE users SET profileUrl = ? WHERE id = ?";
-        try(PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
-            preparedStatement.setString(1,profileUrl);
-            preparedStatement.setInt(2,userId);
+        try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, profileUrl);
+            preparedStatement.setInt(2, userId);
             preparedStatement.executeUpdate();
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             success = false;
             e.printStackTrace();
         }
@@ -207,8 +212,39 @@ public class DBManager {
 
     }
 
+    public PostResponse addPosts(int userId, String postUrl) {
+        PostResponse postResponse = null;
+        String sql = "INSERT INTO posts(user_id,image_url) VALUES(?,?)";
+        try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, userId);
+            preparedStatement.setString(2, postUrl);
+            preparedStatement.executeUpdate();
+            postResponse = new PostResponse(postUrl);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return postResponse;
 
 
+    }
+    public List<PostResponse> getMyPosts(int userId){
+        List<PostResponse> posts = new ArrayList<>();
+        String sql = "SELECT id , image_url FROM posts WHERE user_id = ?";
+        try(PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1,userId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()){
+                PostResponse p = new PostResponse(resultSet.getInt("id"),
+                        resultSet.getString("image_url"),
+                        0,0
+                        );
+                   posts.add(p);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return posts;
+    }
 
 }
-

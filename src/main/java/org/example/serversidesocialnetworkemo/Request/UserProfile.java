@@ -1,4 +1,4 @@
-package org.example.serversidesocialnetworkemo.Entity;
+package org.example.serversidesocialnetworkemo.Request;
 
 public class UserProfile {
  private int userId;
