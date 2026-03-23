@@ -1,13 +1,16 @@
 package org.example.serversidesocialnetworkemo.DataBase;
 
 import jakarta.annotation.PostConstruct;
+import org.example.serversidesocialnetworkemo.Entity.Like;
 import org.example.serversidesocialnetworkemo.Entity.Post;
 import org.example.serversidesocialnetworkemo.Entity.User;
-import org.example.serversidesocialnetworkemo.Response.PostResponse;
+import org.example.serversidesocialnetworkemo.Response.UserHeaderResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -91,14 +94,16 @@ public class DBManager {
 
 
     public boolean updateUserToken(String username, String token) {
-        boolean success = true;
+        boolean success = false;
         String sql = "UPDATE users SET token = ? WHERE username = ?";
         try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
             preparedStatement.setString(1, token);
             preparedStatement.setString(2, username);
-            preparedStatement.executeUpdate();
+            int row = preparedStatement.executeUpdate();
+            if (row == 1) {
+                success = true;
+            }
         } catch (SQLException e) {
-            success = false;
             e.printStackTrace();
         }
         return success;
@@ -165,36 +170,36 @@ public class DBManager {
         return postCount;
     }
 
-    public int getFollowersCount(Integer userId) {
-        int followersCount = 0;
-        String sql = "SELECT COUNT(*) FROM follows WHERE followed_id = ?";
+    public List<String> getFollowerName(Integer userId) {
+        List<String> follower = new ArrayList<>();
+        String sql = "SELECT u.username FROM follows f JOIN users u ON f.follower_id = u.id WHERE f.followed_id = ?";
         try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, userId);
             ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                followersCount = resultSet.getInt(1);
+            while (resultSet.next()) {
+                follower.add(resultSet.getString("username"));
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return followersCount;
+        return follower;
     }
 
-    public int getFollowingCount(Integer userId) {
-        int followingCount = 0;
-        String sql = "SELECT COUNT(*) FROM follows WHERE follower_id = ?";
+    public List<String> getFollowingName(Integer userId) {
+        List<String> following = new ArrayList<>();
+        String sql = "SELECT u.username FROM follows f JOIN users u ON f.follower_id = u.id  WHERE f.follower_id = ?";
         try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, userId);
             ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                followingCount = resultSet.getInt(1);
+            while (resultSet.next()) {
+                following.add(resultSet.getString("username"));
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return followingCount;
+        return following;
     }
 
     public boolean updateProfileByUser(int userId, String profileUrl) {
@@ -212,34 +217,30 @@ public class DBManager {
 
     }
 
-    public PostResponse addPosts(int userId, String postUrl) {
-        PostResponse postResponse = null;
-        String sql = "INSERT INTO posts(user_id,image_url) VALUES(?,?)";
+    public Post addPosts(int userId, String image_url, String content) {
+        Post post = null;
+        String sql = "INSERT INTO posts(user_id,image_url,content) VALUES(?,?,?)";
         try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, userId);
-            preparedStatement.setString(2, postUrl);
+            preparedStatement.setString(2, image_url);
+            preparedStatement.setString(3, content);
             preparedStatement.executeUpdate();
-            postResponse = new PostResponse(postUrl);
-
+            post = new Post();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return postResponse;
-
-
+        return post;
     }
-    public List<PostResponse> getMyPosts(int userId){
-        List<PostResponse> posts = new ArrayList<>();
-        String sql = "SELECT id , image_url FROM posts WHERE user_id = ?";
-        try(PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
-            preparedStatement.setInt(1,userId);
+
+    public List<Post> getPostsByUserId(int userId) {
+        List<Post> posts = new ArrayList<>();
+        String sql = "SELECT id , image_url,content,created_at FROM posts WHERE user_id = ?";
+        try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, userId);
             ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()){
-                PostResponse p = new PostResponse(resultSet.getInt("id"),
-                        resultSet.getString("image_url"),
-                        0,0
-                        );
-                   posts.add(p);
+            while (resultSet.next()) {
+                Post p = new Post(resultSet.getInt("id"), resultSet.getString("image_url"), resultSet.getString("content"));
+                posts.add(p);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -247,4 +248,108 @@ public class DBManager {
         return posts;
     }
 
+    public List<UserHeaderResponse> getAllUsername() {
+        List<UserHeaderResponse> userHeaderResponse = new ArrayList<>();
+        String sql = "SELECT id,username,profileUrl FROM users";
+        try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                UserHeaderResponse u = new UserHeaderResponse(resultSet.getInt("id"),resultSet.getString("profileUrl"), resultSet.getString("username"));
+                userHeaderResponse.add(u);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return userHeaderResponse;
+    }
+
+    public Post getPostId(int id,int userId) {
+        Post post = null;
+        String sql = "SELECT id,content,created_at,image_url FROM posts WHERE id =?";
+        try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                int like = countLike(id);
+                boolean userLike = existLike(userId,id);
+                post = new Post(
+                        resultSet.getInt("id"),
+                        resultSet.getString("content"),
+                        resultSet.getDate("created_at"),
+                        resultSet.getString("image_url"),
+                        like,
+                        userLike);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return post;
+
+    }
+
+    public boolean existLike(int userId, int postId) {
+        boolean isExist = false;
+        String sql = "SELECT user_id,post_id FROM likes WHERE user_id = ? AND post_id = ?";
+        try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, userId);
+            preparedStatement.setInt(2, postId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                isExist = true;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return isExist;
+    }
+
+    public void removeLike(int userId, int postId) {
+        String sql = "DELETE FROM likes WHERE user_id = ? AND post_id = ?";
+        try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, userId);
+            preparedStatement.setInt(2, postId);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public void addLike(int userId, int postId) {
+        String sql = "INSERT INTO  likes(user_id,post_id) VALUES (?,?) ";
+        try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, userId);
+            preparedStatement.setInt(2, postId);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    public int countLike( int postId){
+        int like = 0;
+        String sql = "SELECT COUNT(*) FROM likes WHERE  post_id = ? ";
+        try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, postId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+              like = resultSet.getInt(1);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return like;
+    }
+
+
+
 }
+
+
+
+

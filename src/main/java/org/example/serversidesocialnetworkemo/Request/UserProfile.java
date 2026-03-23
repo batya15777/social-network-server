@@ -1,12 +1,14 @@
 package org.example.serversidesocialnetworkemo.Request;
 
+import java.util.List;
+
 public class UserProfile {
  private int userId;
  private String username;
  private String profileUrl;
  private int postsCount;
- private int followersCount;
- private int followingCount;
+ private List<String> followersCount;
+ private List<String> followingCount;
 
 
 
@@ -17,7 +19,7 @@ public class UserProfile {
 //followers = עוקבים שלי
 //following = אנשים שאני עוקבת אחריהם
 
-    public UserProfile(String username, String profileUrl, int postsCount, int followersCount, int followingCount) {
+    public UserProfile(String username, String profileUrl, int postsCount, List<String> followersCount,  List<String> followingCount) {
         this.username = username;
         this.profileUrl = profileUrl;
         this.postsCount = postsCount;
@@ -45,33 +47,31 @@ public class UserProfile {
         this.postsCount = postsCount;
     }
 
-    public int getFollowersCount() {
+    public  List<String> getFollowersCount() {
         return followersCount;
     }
 
-    public void setFollowersCount(int followersCount) {
+    public void setFollowersCount( List<String> followersCount) {
         this.followersCount = followersCount;
-    }
-
-    public int getFollowingCount() {
-        return followingCount;
-    }
-
-    public void setFollowingCount(int followingCount) {
-        this.followingCount = followingCount;
-    }
-
-    public int getUserId() {
-        return userId;
-    }
-
-    public void setUserId(int userId) {
-        this.userId = userId;
     }
 
     public String getUsername() {
         return username;
     }
 
+    public int getUserId() {
+        return userId;
+    }
 
+    public List<String> getFollowingCount() {
+        return followingCount;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public void setFollowingCount(List<String> followingCount) {
+        this.followingCount = followingCount;
+    }
 }
