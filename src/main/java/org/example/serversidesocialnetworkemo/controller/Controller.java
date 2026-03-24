@@ -1,11 +1,12 @@
 package org.example.serversidesocialnetworkemo.controller;
 
 import org.example.serversidesocialnetworkemo.DataBase.DBManager;
-import org.example.serversidesocialnetworkemo.Entity.Like;
+import org.example.serversidesocialnetworkemo.Entity.Comment;
 import org.example.serversidesocialnetworkemo.Entity.Post;
 import org.example.serversidesocialnetworkemo.Request.*;
 import org.example.serversidesocialnetworkemo.Entity.User;
 import org.example.serversidesocialnetworkemo.Response.BasicResponse;
+import org.example.serversidesocialnetworkemo.Response.CommentResponse;
 import org.example.serversidesocialnetworkemo.Response.LoginResponse;
 import org.example.serversidesocialnetworkemo.Response.UserHeaderResponse;
 import org.example.serversidesocialnetworkemo.Utils.Errors;
@@ -149,6 +150,7 @@ public class Controller {
         return this.dbManager.getAllUsername();
     }
 
+
     @GetMapping("/getPost/{id}")
     public Post getPost (@PathVariable int id,@RequestHeader ("Authorization") String token){
         Post post = null;
@@ -161,7 +163,7 @@ public class Controller {
 
     @PostMapping("/like")
     public int toggleLike(@RequestHeader("Authorization") String token , @RequestBody LikeRequest likeRequest){
-            int like = 0;
+            int likes = 0;
             Integer userId = this.dbManager.getUserIdByToken(token);
             if (userId != null){
                if (this.dbManager.existLike(userId,likeRequest.getPostId())){
@@ -169,9 +171,9 @@ public class Controller {
                } else{
                     this.dbManager.addLike(userId,likeRequest.getPostId());
                }
-                like = this.dbManager.countLike(likeRequest.getPostId());
+                likes = this.dbManager.countLike(likeRequest.getPostId());
             }
-            return like;
+            return likes;
     }
     @GetMapping("/get-user-page/{id}")
     public UserProfile getUserPage(@PathVariable int id ,@RequestHeader("Authorization") String token) {
@@ -187,7 +189,6 @@ public class Controller {
             postsCount = this.dbManager.getPostCount(id);
             follower = this.dbManager.getFollowerName(id);
             following = this.dbManager.getFollowingName(id);
-
         }
         return new UserProfile(username,profilePicUrl,postsCount,follower,following);
     }
@@ -200,4 +201,21 @@ public class Controller {
         }
         return posts;
     }
+    @GetMapping("/getComments/{id}")
+    public List<CommentResponse> getComments(@PathVariable int id ,@RequestHeader("Authorization") String token){
+        List<CommentResponse> commentResponses = new ArrayList<>();
+        Integer userId = this.dbManager.getUserIdByToken(token);
+        if (userId != null){
+            commentResponses = this.dbManager.getComments(id);
+        }
+        return commentResponses;
+    }
+    @PostMapping("addComment")
+    public void addComment(@RequestHeader("Authorization") String token , @RequestBody AddCommentRequest addCommentRequest){
+        Integer userId = this.dbManager.getUserIdByToken(token);
+        if (userId != null) {
+            this.dbManager.addComments(addCommentRequest.getPostId(),userId,addCommentRequest.getContent());
+        }
+    }
+
 }

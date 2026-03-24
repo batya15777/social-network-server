@@ -1,34 +1,47 @@
 package org.example.serversidesocialnetworkemo.Entity;
 
 import java.util.Date;
-import java.util.List;
 
 public class Post {
+
     private int id;
-    private int User_id;
+    private int userId;
     private String content;
-    private Date creat_at;
+    private Date createAt;
     private String image_url;
-    private int like;
+    private int likes;
     private boolean userLiked;
+    private int comments;
 
-
-    public Post(int id, String content, Date creat_at, String image_url, int like, boolean userLiked) {
+    public Post(int id, String content, Date createAt, String image_url,
+                int likes, boolean userLiked, int comments) {
         this.id = id;
         this.content = content;
-        this.creat_at = creat_at;
+        this.createAt = createAt;
         this.image_url = image_url;
-        this.like = like;
+        this.likes = likes;
+        this.userLiked = userLiked;
+        this.comments = comments;
+    }
+
+    public Post(int id, String content, Date createAt, String image_url,
+                int likes, boolean userLiked) {
+        this.id = id;
+        this.content = content;
+        this.createAt = createAt;
+        this.image_url = image_url;
+        this.likes = likes;
         this.userLiked = userLiked;
     }
 
-    public Post(){}
+    public Post() {}
 
-    public Post(int id, String image_url,String content) {
+    public Post(int id, String image_url, String content) {
         this.id = id;
         this.image_url = image_url;
         this.content = content;
     }
+
 
     public int getId() {
         return id;
@@ -38,13 +51,15 @@ public class Post {
         this.id = id;
     }
 
-    public int getUser_id() {
-        return User_id;
+
+    public int getUserId() {
+        return userId;
     }
 
-    public void setUser_id(int user_id) {
-        User_id = user_id;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
+
 
     public String getContent() {
         return content;
@@ -54,13 +69,15 @@ public class Post {
         this.content = content;
     }
 
-    public Date getCreat_at() {
-        return creat_at;
+
+    public Date getCreateAt() {
+        return createAt;
     }
 
-    public void setCreat_at(Date creat_at) {
-        this.creat_at = creat_at;
+    public void setCreateAt(Date createAt) {
+        this.createAt = createAt;
     }
+
 
     public String getImage_url() {
         return image_url;
@@ -71,13 +88,14 @@ public class Post {
     }
 
 
-    public int getLike() {
-        return like;
+    public int getLikes() {
+        return likes;
     }
 
-    public void setLike(int like) {
-        this.like = like;
+    public void setLikes(int likes) {
+        this.likes = likes;
     }
+
 
     public boolean isUserLiked() {
         return userLiked;
@@ -85,5 +103,14 @@ public class Post {
 
     public void setUserLiked(boolean userLiked) {
         this.userLiked = userLiked;
+    }
+
+
+    public int getComments() {
+        return comments;
+    }
+
+    public void setComments(int comments) {
+        this.comments = comments;
     }
 }

@@ -1,16 +1,15 @@
 package org.example.serversidesocialnetworkemo.DataBase;
 
 import jakarta.annotation.PostConstruct;
-import org.example.serversidesocialnetworkemo.Entity.Like;
 import org.example.serversidesocialnetworkemo.Entity.Post;
 import org.example.serversidesocialnetworkemo.Entity.User;
+import org.example.serversidesocialnetworkemo.Request.AddCommentRequest;
+import org.example.serversidesocialnetworkemo.Response.CommentResponse;
 import org.example.serversidesocialnetworkemo.Response.UserHeaderResponse;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.PostMapping;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Component
@@ -271,15 +270,20 @@ public class DBManager {
             preparedStatement.setInt(1, id);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                int like = countLike(id);
+                int likes = countLike(id);
+                 likes= countLike(id);
                 boolean userLike = existLike(userId,id);
+                int comment = countComments(id);
                 post = new Post(
                         resultSet.getInt("id"),
                         resultSet.getString("content"),
                         resultSet.getDate("created_at"),
                         resultSet.getString("image_url"),
-                        like,
-                        userLike);
+                        likes,
+                        userLike,
+                        comment
+                );
+
             }
 
         } catch (SQLException e) {
@@ -345,7 +349,54 @@ public class DBManager {
         }
         return like;
     }
+    public int countComments( int postId){
+        int comment = 0;
+        String sql = "SELECT COUNT(*) AS comments FROM comments WHERE post_id =?  ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setInt(1,postId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()){
+                comment = resultSet.getInt("comments");
+            }
 
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return comment;
+    }
+
+
+    public List<CommentResponse>getComments(int id){
+        List<CommentResponse> comments = new ArrayList<>();
+        String sql = "SELECT c.id,c.content,c.created_at,u.username,u.profileUrl From comments c JOIN users u ON c.user_id = u.id WHERE post_id =? ORDER BY c.created_at";
+        try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1,id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()){
+                CommentResponse c = new CommentResponse(resultSet.getString("username"),
+                        resultSet.getString("profileUrl"),
+                        resultSet.getString("content"),
+                        resultSet.getDate("created_at"));
+                        comments.add(c);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+              return comments;
+    }
+    public void addComments(int postId,int userId,String content){
+        String sql = "INSERT INTO comments (post_id,user_id,content) VALUES ( ?, ?,? )";
+        try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1,postId);
+            preparedStatement.setInt(2,userId);
+            preparedStatement.setString(3,content);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
 
 }

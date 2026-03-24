@@ -10,7 +10,7 @@ public class UserProfile {
  private List<String> followersCount;
  private List<String> followingCount;
 
-
+//להוסיף אן המשתמש עוקב או לא
 
 
  public UserProfile(){}
