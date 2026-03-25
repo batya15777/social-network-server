@@ -200,6 +200,22 @@ public class DBManager {
         }
         return following;
     }
+    public boolean doIsFollowing(Integer userId , int id){
+        boolean isFollowing = false;
+        String sql = "SELECT follower_id,followed_id FROM follows WHERE follower_id =? AND followed_id =? ";
+        try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, userId);
+            preparedStatement.setInt(2, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                isFollowing = true;
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+         return isFollowing;
+    }
 
     public boolean updateProfileByUser(int userId, String profileUrl) {
         boolean success = true;
@@ -396,6 +412,28 @@ public class DBManager {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+    public void removeFollowing(int userId, int id){
+        String sql = "DELETE FROM follows WHERE follower_id = ? AND followed_id = ?";
+        try(PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1,userId);
+            preparedStatement.setInt(2,id);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public void addFollowing(int userId, int id){
+        String sql = "INSERT INTO  follows(follower_id,followed_id) VALUES (?,?) ";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)){
+            preparedStatement.setInt(1,userId);
+            preparedStatement.setInt(2,id);
+            preparedStatement.executeUpdate();        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+
     }
 
 

@@ -31,7 +31,7 @@ public class Errors {
     public static final int ERROR_LOGIN = 1000;
     public static final int ERROR_SIGNUP = 1001;
     public static final int ERROR_UPDATE_PROFILE = 1002;
-
+    public static final int ERROR_FOLLOWING_CLICK = 1003;
 
 
 

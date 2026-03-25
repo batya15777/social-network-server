@@ -105,7 +105,6 @@ public class Controller {
             postsCount = this.dbManager.getPostCount(userId);
             follower = this.dbManager.getFollowerName(userId);
             following = this.dbManager.getFollowingName(userId);
-
         }
         return new UserProfile(username, profilePicUrl, postsCount, follower, following);
 
@@ -183,14 +182,16 @@ public class Controller {
         List<String> follower = new ArrayList<>();
         List<String> following = new ArrayList<>();
         Integer userId = this.dbManager.getUserIdByToken(token);
+        boolean isFollowing = false;
         if (userId != null) {
             username = this.dbManager.getUsername(id);
             profilePicUrl = this.dbManager.getByProfile(id);
             postsCount = this.dbManager.getPostCount(id);
             follower = this.dbManager.getFollowerName(id);
             following = this.dbManager.getFollowingName(id);
+            isFollowing = this.dbManager.doIsFollowing( userId,id);
         }
-        return new UserProfile(username,profilePicUrl,postsCount,follower,following);
+        return new UserProfile(username,profilePicUrl,postsCount,follower,following,isFollowing);
     }
     @GetMapping("/get-user-post/{id}")
     public List<Post> getPostByUser(@PathVariable int id ,@RequestHeader("Authorization") String token){
@@ -216,6 +217,22 @@ public class Controller {
         if (userId != null) {
             this.dbManager.addComments(addCommentRequest.getPostId(),userId,addCommentRequest.getContent());
         }
+    }
+    @PostMapping("/followingClick/{id}")
+    public BasicResponse followingClick(@PathVariable int id ,@RequestHeader("Authorization") String token){
+        boolean success = false;
+        Integer errorCode = Errors.ERROR_FOLLOWING_CLICK;
+        Integer userId = this.dbManager.getUserIdByToken(token);
+        if (userId != null && userId != id){
+            if (this.dbManager.doIsFollowing( userId,id)){
+                this.dbManager.removeFollowing(userId,id);
+            }else {
+                this.dbManager.addFollowing(userId,id);
+            }
+            success = true;
+            errorCode = null;
+         }
+        return new BasicResponse(success,errorCode);
     }
 
 }

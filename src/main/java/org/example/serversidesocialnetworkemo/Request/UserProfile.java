@@ -9,8 +9,7 @@ public class UserProfile {
  private int postsCount;
  private List<String> followersCount;
  private List<String> followingCount;
-
-//להוסיף אן המשתמש עוקב או לא
+ private boolean isFollowing;
 
 
  public UserProfile(){}
@@ -18,6 +17,16 @@ public class UserProfile {
 
 //followers = עוקבים שלי
 //following = אנשים שאני עוקבת אחריהם
+
+    public UserProfile( String username, String profileUrl, int postsCount, List<String> followersCount, List<String> followingCount, boolean isFollowing) {
+        this.username = username;
+        this.profileUrl = profileUrl;
+        this.postsCount = postsCount;
+        this.followersCount = followersCount;
+        this.followingCount = followingCount;
+        this.isFollowing = isFollowing;
+    }
+
 
     public UserProfile(String username, String profileUrl, int postsCount, List<String> followersCount,  List<String> followingCount) {
         this.username = username;
@@ -73,5 +82,13 @@ public class UserProfile {
 
     public void setFollowingCount(List<String> followingCount) {
         this.followingCount = followingCount;
+    }
+
+    public boolean isFollowing() {
+        return isFollowing;
+    }
+
+    public void setFollowing(boolean following) {
+        isFollowing = following;
     }
 }
