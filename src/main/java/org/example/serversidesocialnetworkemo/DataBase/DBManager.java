@@ -1,9 +1,8 @@
 package org.example.serversidesocialnetworkemo.DataBase;
 
 import jakarta.annotation.PostConstruct;
-import org.example.serversidesocialnetworkemo.Entity.Post;
+import org.example.serversidesocialnetworkemo.Request.PostRequest;
 import org.example.serversidesocialnetworkemo.Entity.User;
-import org.example.serversidesocialnetworkemo.Request.AddCommentRequest;
 import org.example.serversidesocialnetworkemo.Response.CommentResponse;
 import org.example.serversidesocialnetworkemo.Response.UserHeaderResponse;
 import org.springframework.stereotype.Component;
@@ -232,35 +231,35 @@ public class DBManager {
 
     }
 
-    public Post addPosts(int userId, String image_url, String content) {
-        Post post = null;
+    public PostRequest addPosts(int userId, String image_url, String content) {
+        PostRequest post = null;
         String sql = "INSERT INTO posts(user_id,image_url,content) VALUES(?,?,?)";
         try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, userId);
             preparedStatement.setString(2, image_url);
             preparedStatement.setString(3, content);
             preparedStatement.executeUpdate();
-            post = new Post();
+            post = new PostRequest();
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return post;
     }
 
-    public List<Post> getPostsByUserId(int userId) {
-        List<Post> posts = new ArrayList<>();
+    public List<PostRequest> getPostsByUserId(int userId) {
+        List<PostRequest> postRequests = new ArrayList<>();
         String sql = "SELECT id , image_url,content,created_at FROM posts WHERE user_id = ?";
         try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, userId);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                Post p = new Post(resultSet.getInt("id"), resultSet.getString("image_url"), resultSet.getString("content"));
-                posts.add(p);
+                PostRequest p = new PostRequest(resultSet.getInt("id"), resultSet.getString("image_url"), resultSet.getString("content"));
+                postRequests.add(p);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return posts;
+        return postRequests;
     }
 
     public List<UserHeaderResponse> getAllUsername() {
@@ -279,8 +278,8 @@ public class DBManager {
         return userHeaderResponse;
     }
 
-    public Post getPostId(int id,int userId) {
-        Post post = null;
+    public PostRequest getPostId(int id, int userId) {
+        PostRequest postRequest = null;
         String sql = "SELECT id,content,created_at,image_url FROM posts WHERE id =?";
         try (PreparedStatement preparedStatement = this.connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, id);
@@ -290,7 +289,7 @@ public class DBManager {
                  likes= countLike(id);
                 boolean userLike = existLike(userId,id);
                 int comment = countComments(id);
-                post = new Post(
+                postRequest = new PostRequest(
                         resultSet.getInt("id"),
                         resultSet.getString("content"),
                         resultSet.getDate("created_at"),
@@ -306,7 +305,7 @@ public class DBManager {
             e.printStackTrace();
         }
 
-        return post;
+        return postRequest;
 
     }
 
@@ -431,13 +430,37 @@ public class DBManager {
             preparedStatement.executeUpdate();        } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+    public List<PostRequest> getFeed(int userId){
+        List<PostRequest> posts = new ArrayList<>();
+        String sql = "SELECT p.id ,p.content ,p.created_at ,p.image_url, u.username ,u.profileUrl "+
+                "FROM posts p JOIN follows f ON p.user_id = f.followed_id " +
+                "JOIN users u ON p.user_id = u.id "+
+                "WHERE f.follower_id = ? "+
+                "ORDER BY p.created_at DESC LIMIT 20";
+        try(PreparedStatement p = this.connection.prepareStatement(sql)){
+            p.setInt(1,userId);
+            ResultSet rs = p.executeQuery();
+            while (rs.next()){
+                //String username, String profileUrl, String content, int id, String image_url, Date createAt, int likes, int comments
+                PostRequest post = new PostRequest(rs.getString("username"),rs.getString("profileUrl")
+                        ,rs.getString("content"),rs.getInt("id"),rs.getString("image_url"),rs.getDate("created_at")
+                        ,countLike(rs.getInt("id")),countComments(rs.getInt("id")));
+                posts.add(post);
+            }
+
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return posts;
+    }
 
 
 
     }
 
 
-}
+
 
 
 

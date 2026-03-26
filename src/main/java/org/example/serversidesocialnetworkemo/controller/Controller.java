@@ -1,8 +1,7 @@
 package org.example.serversidesocialnetworkemo.controller;
 
 import org.example.serversidesocialnetworkemo.DataBase.DBManager;
-import org.example.serversidesocialnetworkemo.Entity.Comment;
-import org.example.serversidesocialnetworkemo.Entity.Post;
+import org.example.serversidesocialnetworkemo.Request.PostRequest;
 import org.example.serversidesocialnetworkemo.Request.*;
 import org.example.serversidesocialnetworkemo.Entity.User;
 import org.example.serversidesocialnetworkemo.Response.BasicResponse;
@@ -126,8 +125,8 @@ public class Controller {
     }
 
     @PostMapping("/add-posts")
-    public Post addPosts(@RequestBody CreatePostRequest postRequest , @RequestHeader("Authorization") String token){
-        Post post = null;
+    public PostRequest addPosts(@RequestBody CreatePostRequest postRequest , @RequestHeader("Authorization") String token){
+        PostRequest post = null;
         Integer userId = this.dbManager.getUserIdByToken(token);
         if (userId != null && postRequest != null && (postRequest.getImageUrl() != null && !postRequest.getImageUrl().trim().isEmpty() ||(postRequest.getContent()!=null && !postRequest.getContent().trim().isEmpty()))){
             post = this.dbManager.addPosts(userId,postRequest.getImageUrl(),postRequest.getContent());
@@ -136,13 +135,13 @@ public class Controller {
     }
 
     @GetMapping("/get-my-posts")
-    public List<Post> getPosts( @RequestHeader("Authorization") String token){
-        List<Post> posts = null;
+    public List<PostRequest> getPosts(@RequestHeader("Authorization") String token){
+        List<PostRequest> postRequests = null;
         Integer userId = this.dbManager.getUserIdByToken(token);
         if (userId != null) {
-            posts = this.dbManager.getPostsByUserId(userId);
+            postRequests = this.dbManager.getPostsByUserId(userId);
         }
-        return posts;
+        return postRequests;
     }
     @GetMapping("/get-all-username")
     public List<UserHeaderResponse> getAllUsername(){
@@ -151,13 +150,13 @@ public class Controller {
 
 
     @GetMapping("/getPost/{id}")
-    public Post getPost (@PathVariable int id,@RequestHeader ("Authorization") String token){
-        Post post = null;
+    public PostRequest getPost (@PathVariable int id, @RequestHeader ("Authorization") String token){
+        PostRequest postRequest = null;
         Integer userId = this.dbManager.getUserIdByToken(token);
         if (userId != null){
-            post = this.dbManager.getPostId(id,userId);
+            postRequest = this.dbManager.getPostId(id,userId);
         }
-        return post;
+        return postRequest;
     }
 
     @PostMapping("/like")
@@ -194,13 +193,13 @@ public class Controller {
         return new UserProfile(username,profilePicUrl,postsCount,follower,following,isFollowing);
     }
     @GetMapping("/get-user-post/{id}")
-    public List<Post> getPostByUser(@PathVariable int id ,@RequestHeader("Authorization") String token){
-        List<Post> posts = new ArrayList<>();
+    public List<PostRequest> getPostByUser(@PathVariable int id , @RequestHeader("Authorization") String token){
+        List<PostRequest> postRequests = new ArrayList<>();
         Integer userId = this.dbManager.getUserIdByToken(token);
         if (userId != null){
-            posts = this.dbManager.getPostsByUserId(id);
+            postRequests = this.dbManager.getPostsByUserId(id);
         }
-        return posts;
+        return postRequests;
     }
     @GetMapping("/getComments/{id}")
     public List<CommentResponse> getComments(@PathVariable int id ,@RequestHeader("Authorization") String token){
@@ -233,6 +232,15 @@ public class Controller {
             errorCode = null;
          }
         return new BasicResponse(success,errorCode);
+    }
+    @GetMapping("/feed")
+    public List<PostRequest> getFeed(@RequestHeader("Authorization") String token){
+        List<PostRequest> posts = new ArrayList<>();
+        Integer userId = this.dbManager.getUserIdByToken(token);
+        if (userId != null){
+            posts = this.dbManager.getFeed(userId);
+        }
+        return posts;
     }
 
 }

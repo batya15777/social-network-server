@@ -1,11 +1,12 @@
-package org.example.serversidesocialnetworkemo.Entity;
+package org.example.serversidesocialnetworkemo.Request;
 
 import java.util.Date;
 
-public class Post {
+public class PostRequest {
 
     private int id;
-    private int userId;
+    private String username;
+    private String profileUrl;
     private String content;
     private Date createAt;
     private String image_url;
@@ -13,8 +14,20 @@ public class Post {
     private boolean userLiked;
     private int comments;
 
-    public Post(int id, String content, Date createAt, String image_url,
-                int likes, boolean userLiked, int comments) {
+
+    public PostRequest(String username, String profileUrl, String content, int id, String image_url, Date createAt, int likes, int comments) {
+        this.username = username;
+        this.profileUrl = profileUrl;
+        this.content = content;
+        this.id = id;
+        this.image_url = image_url;
+        this.createAt = createAt;
+        this.likes = likes;
+        this.comments = comments;
+    }
+
+    public PostRequest(int id, String content, Date createAt, String image_url,
+                       int likes, boolean userLiked, int comments) {
         this.id = id;
         this.content = content;
         this.createAt = createAt;
@@ -24,8 +37,8 @@ public class Post {
         this.comments = comments;
     }
 
-    public Post(int id, String content, Date createAt, String image_url,
-                int likes, boolean userLiked) {
+    public PostRequest(int id, String content, Date createAt, String image_url,
+                       int likes, boolean userLiked) {
         this.id = id;
         this.content = content;
         this.createAt = createAt;
@@ -34,9 +47,9 @@ public class Post {
         this.userLiked = userLiked;
     }
 
-    public Post() {}
+    public PostRequest() {}
 
-    public Post(int id, String image_url, String content) {
+    public PostRequest(int id, String image_url, String content) {
         this.id = id;
         this.image_url = image_url;
         this.content = content;
@@ -52,14 +65,14 @@ public class Post {
     }
 
 
-    public int getUserId() {
-        return userId;
+
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
+    public void setUsername(String username) {
+        this.username = username;
     }
-
 
     public String getContent() {
         return content;
